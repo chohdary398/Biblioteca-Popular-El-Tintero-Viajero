@@ -43,14 +43,14 @@ export function ArancelesExplorer({ rows }: { rows: Arancel[] }) {
   return (
     <section aria-label="Lista de aranceles" className="px-4 pb-14 sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <div className="rounded-xl bg-brand p-5 text-white shadow-lg sm:p-7">
+        <div className="w-full overflow-hidden rounded-xl bg-brand p-4 text-white shadow-lg sm:p-7">
           <label className="block text-lg font-bold" htmlFor={searchId}>
             ¿Qué estás buscando?
           </label>
           <div className="relative mt-2">
             <svg
               aria-hidden
-              className="pointer-events-none absolute top-1/2 left-4 size-6 -translate-y-1/2 text-brand"
+              className="pointer-events-none absolute top-1/2 left-3 size-5 sm:size-6 -translate-y-1/2 text-brand"
               fill="none"
               stroke="currentColor"
               strokeWidth={2}
@@ -61,10 +61,10 @@ export function ArancelesExplorer({ rows }: { rows: Arancel[] }) {
             </svg>
             <input
               autoComplete="off"
-              className="h-14 w-full rounded-lg border-2 border-transparent bg-white pr-14 pl-13 text-xl text-ink placeholder:text-ink/60 focus-visible:outline-white"
+              className="h-14 w-full rounded-lg border-2 border-transparent bg-white pr-2 pl-11 text-[13px] placeholder:text-[13px] sm:pl-13 sm:text-xl sm:placeholder:text-xl text-ink placeholder:text-ink/60 focus-visible:outline-white"
               id={searchId}
               onChange={(e) => { setQ(e.target.value); }}
-              placeholder="Por ejemplo: encuadernación"
+              placeholder="Buscar taller, cuota o servicio..."
               type="search"
               value={q}
             />
@@ -82,13 +82,13 @@ export function ArancelesExplorer({ rows }: { rows: Arancel[] }) {
             ) : null}
           </div>
 
-          <div aria-label="Filtrar por grupo" className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-4" role="group">
+          <div aria-label="Filtrar por grupo" className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4" role="group">
             {TABS.map((t) => {
               const on = filtro === t.id;
               return (
                 <button
                   aria-pressed={on}
-                  className={`flex min-h-14 items-center justify-center gap-2 rounded-lg border-2 px-3 text-center text-lg leading-tight font-bold transition-colors focus-visible:outline-white ${
+                  className={`flex min-h-14 w-full items-center justify-between gap-2 rounded-lg border-2 px-4 py-3 text-left sm:justify-center sm:text-center text-lg leading-tight font-bold transition-colors focus-visible:outline-white ${
                     on
                       ? 'border-white bg-white text-brand'
                       : 'border-white/40 bg-white/5 text-white hover:bg-white/15'
