@@ -94,7 +94,13 @@ Referencia mensual sin el descuento semestral: $1.800 + $8.800 = **$10.600 por m
 
 Todos los importes, estados, cupos y horarios son **datos sintéticos de prueba**: no representan tarifas oficiales de la biblioteca. La app no pide datos personales, no tiene cuentas y no procesa pagos; lo único que se guarda es el historial de simulaciones, en el propio navegador de cada persona.
 
-## 8. Próximos pasos posibles
+## 8. Funcionalidades simuladas y reinicio de datos
+
+- **Funcionalidades simuladas:** No hay backend, cuentas de usuario ni pasarelas de pago; la biblioteca cobra de forma presencial. El botón **Compartir por WhatsApp** arma el texto del presupuesto y abre el enlace `wa.me` con el mensaje prellenado para enviarlo manualmente.
+- **Cómo reiniciar los datos precargados (`localStorage`):** Los aranceles semilla y el historial de hasta 3 simulaciones se guardan en el `localStorage` del navegador. Para reiniciar todo al estado inicial de fábrica, abre las herramientas de desarrollador del navegador (`F12` > *Application / Aplicación* > *Local Storage*), borra las claves del sitio y recarga la página (`F5`).
+-
+
+## 9. Próximos pasos posibles
 
 - Reemplazar los datos de prueba por las tarifas reales que apruebe la comisión.
 - Agregar logo, dirección y teléfono en el pie.
