@@ -275,7 +275,7 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
           <p className="shrink-0 text-xl font-bold tabular-nums">{formatARS(r.subCopias)}</p>
         </li>
       </ul>
-      <div className="mt-4 flex items-baseline justify-between gap-4">
+      <div className="mt-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <p className="text-lg font-bold text-brand">Total del período</p>
         <p aria-live="polite" className="text-4xl font-bold text-brand tabular-nums">
           {formatARS(total)} <span className="text-base">ARS</span>
@@ -325,6 +325,19 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
       <div className="mx-auto max-w-6xl">
         <div className="grid items-start gap-8 lg:grid-cols-[1.35fr_1fr]">
           <div className="grid min-w-0 gap-8">
+            <button
+              className="min-h-12 w-full rounded-lg border-2 border-dashed border-accent px-4 py-2 text-center text-lg font-bold text-accent transition-colors hover:bg-accent/10 sm:w-auto sm:justify-self-start"
+              onClick={() => {
+                setCuotaId('cuota-jubilado');
+                setElegidos(['taller-encuadernacion']);
+                setCopias(0);
+                setMeses(6);
+                setAviso(null);
+              }}
+              type="button"
+            >
+              Cargar ejemplo de Norma (Jubilada)
+            </button>
             <Paso n={1} titulo="Tu condición de socio">
               <div className="grid gap-3 sm:grid-cols-2" role="radiogroup">
                 {[{ id: 'no-socio', nombre: 'No socio (sin cuota social)', precio: null as number | null }, ...cuotas].map((c) => (
