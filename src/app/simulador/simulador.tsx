@@ -77,6 +77,37 @@ const parsear = (raw: string): Entrada[] => {
   }
 };
 
+type Datos = Pick<Entrada, 'cuotaId' | 'cuotaNombre' | 'meses' | 'talleres' | 'copias' | 'desglose' | 'total'>;
+
+const urlWhatsApp = (d: Datos) => {
+  const socio = d.cuotaId !== 'no-socio';
+  const per = `${String(d.meses)} ${d.meses === 1 ? 'mes' : 'meses'}`;
+  const tall = d.talleres.length
+    ? d.talleres.map((t) => `   • ${t.nombre}: ${formatARS(t.monto)}`).join('\n') +
+      (socio ? `\n   (con ${String(DESCUENTO_SOCIO)}% de descuento de socio)` : '')
+    : '   • Ninguno';
+  const texto = [
+    '*Biblioteca Popular El Tintero Viajero*',
+    `Mi simulación de cuota`,
+    '',
+    `Categoría: ${socio ? `Socio (${d.cuotaNombre})` : 'No socio'}`,
+    `Período: ${per}`,
+    '',
+    `Cuota social: ${formatARS(d.desglose.cuota)}${d.meses === 6 && socio ? ' (con 15% de ahorro por 6 meses)' : ''}`,
+    `Talleres incluidos: ${formatARS(d.desglose.talleres)}`,
+    tall,
+    `Fotocopias: ${formatARS(d.desglose.copias)}${d.copias > 0 ? ` (${String(d.copias)} por mes)` : ''}`,
+    '',
+    `*Total estimado: ${formatARS(d.total)} ARS*`,
+    '',
+    'Estimación orientativa. Los importes pueden cambiar por decisión de la comisión.',
+  ].join('\n');
+  return `https://wa.me/?text=${encodeURIComponent(texto)}`;
+};
+
+const botonWa =
+  'inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-lg bg-[#1B7F3B] px-6 text-lg font-bold text-white transition-colors hover:bg-[#166832] focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-accent';
+
 const fechaLarga = (iso: string) => {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return 'Fecha desconocida';
@@ -264,6 +295,22 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
       >
         Guardar en mi historial
       </button>
+      <a
+        className={`${botonWa} mt-3`}
+        href={urlWhatsApp({
+          cuotaId,
+          cuotaNombre: cuota ? cuota.nombre : 'No socio',
+          meses,
+          talleres: r.elegidosT.map((t) => ({ id: t.id, nombre: t.nombre, monto: precioTaller(t.precio ?? 0) * meses })),
+          copias,
+          desglose: { cuota: r.subCuota, talleres: r.subTalleres, copias: r.subCopias },
+          total,
+        })}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Compartir por WhatsApp
+      </a>
       {aviso ? (
         <p className={`mt-3 text-lg font-bold ${aviso.ok ? 'text-brand' : 'text-accent'}`} role="status">
           {aviso.text}
@@ -478,6 +525,9 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
                         </li>
                       ))}
                     </ul>
+                    <a className={`${botonWa} mt-3`} href={urlWhatsApp(e)} rel="noopener noreferrer" target="_blank">
+                      Compartir por WhatsApp
+                    </a>
                     <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t-2 border-brand pt-3">
                       <p className="text-2xl font-bold text-brand tabular-nums">
                         <span className="mr-2 text-base">Total</span>
