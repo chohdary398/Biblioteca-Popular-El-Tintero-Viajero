@@ -40,17 +40,17 @@ export default async function Home() {
 
       <ArancelesExplorer rows={rows} />
 
-      <section className="bg-brand px-4 py-12 text-white sm:px-6">
+      <section className="bg-brand px-4 py-12 text-[#F4EDE0] sm:px-6">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 md:flex-row md:items-center">
           <div className="max-w-prose">
             <h2 className="font-display text-2xl font-black sm:text-3xl">¿Cuánto te saldría en total?</h2>
-            <p className="mt-2 text-lg text-white/90">
+            <p className="mt-2 text-lg text-[#F4EDE0]/90">
               Elegí tu cuota, tildá los talleres y sumá fotocopias o lo que necesites. Es una cuenta de práctica: el
               cobro se hace en la mesa de préstamos.
             </p>
           </div>
           <Link
-            className="inline-flex min-h-14 items-center justify-center rounded-lg bg-paper px-7 text-lg font-bold text-brand transition-colors hover:bg-white focus-visible:outline-white"
+            className="inline-flex min-h-14 items-center justify-center rounded-lg bg-paper px-7 text-lg font-bold text-brand transition-colors hover:bg-[#FFFFFF] focus-visible:outline-[#F4EDE0]"
             href="/simulador"
           >
             Probar el simulador de cuota

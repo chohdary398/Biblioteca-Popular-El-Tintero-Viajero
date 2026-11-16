@@ -12,7 +12,7 @@ export default function RealtimeExample() {
   return (
     <main className="mx-auto max-w-md px-6 py-[10vh]">
       <h1 className="text-2xl font-semibold">Real-time room</h1>
-      <p className="mt-2 text-sm text-zinc-600">
+      <p className="mt-2 text-sm text-[#6E7F5A]">
         {status} · {others.length} other{others.length === 1 ? '' : 's'} here
       </p>
       <form

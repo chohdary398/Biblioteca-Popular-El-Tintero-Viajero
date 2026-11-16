@@ -37,7 +37,7 @@ const fonts = `${heading.variable} ${body.variable}`;
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html className={fonts} lang="es">
-      <body className="flex min-h-dvh flex-col bg-paper font-sans text-ink antialiased">
+      <body className="flex min-h-dvh flex-col bg-[#F4EDE0] font-sans text-[#1E1E1E] antialiased">
         <SiteHeader />
         <div className="flex-1">{children}</div>
         <SiteFooter />

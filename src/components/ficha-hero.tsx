@@ -18,7 +18,7 @@ export function FichaHero(props: {
               <h1 className="font-display text-3xl leading-tight font-black text-brand sm:text-5xl">
                 {props.title}
               </h1>
-              <div className="mt-4 max-w-prose bg-white/85 text-xl leading-8">{props.children}</div>
+              <div className="mt-4 max-w-prose bg-[#F4EDE0]/85 text-xl leading-8">{props.children}</div>
             </div>
             <div className="flex min-w-0 justify-center overflow-hidden px-2 py-3 lg:px-6">
               <span className="sello max-w-full px-4 text-xl sm:max-w-64 sm:text-3xl">{props.stamp}</span>

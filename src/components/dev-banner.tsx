@@ -16,7 +16,7 @@ export async function DevBanner() {
         data-totalum-dev-banner=""
         suppressHydrationWarning
         hidden
-        className="fixed inset-x-0 bottom-0 z-[2147483647] bg-orange-500 px-4 py-2 text-center text-sm text-white"
+        className="fixed inset-x-0 bottom-0 z-[2147483647] bg-[#E23A3A] px-4 py-2 text-center text-sm text-[#F4EDE0]"
       >
         This is just a temporal link used for development, to get a permanent link publish your project.
       </div>

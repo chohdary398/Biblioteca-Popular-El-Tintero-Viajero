@@ -106,7 +106,7 @@ const urlWhatsApp = (d: Datos) => {
 };
 
 const botonWa =
-  'inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-lg bg-[#1B7F3B] px-6 text-lg font-bold text-white transition-colors hover:bg-[#166832] focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-accent';
+  'inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-lg bg-[#23395D] px-6 text-lg font-bold text-[#F4EDE0] transition-colors hover:opacity-90 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-accent';
 
 const fechaLarga = (iso: string) => {
   const d = new Date(iso);
@@ -125,7 +125,7 @@ function Paso({ n, titulo, children }: { n: number; titulo: string; children: Re
       <h2 className="flex items-center gap-3 font-display text-xl leading-snug font-black text-brand sm:text-2xl">
         <span
           aria-hidden
-          className="grid size-11 shrink-0 place-items-center rounded-full bg-accent font-sans text-xl font-bold text-white"
+          className="grid size-11 shrink-0 place-items-center rounded-full bg-accent font-sans text-xl font-bold text-[#F4EDE0]"
         >
           {n}
         </span>
@@ -138,7 +138,7 @@ function Paso({ n, titulo, children }: { n: number; titulo: string; children: Re
 }
 
 const opcion =
-  'flex cursor-pointer items-start gap-4 rounded-lg border-2 border-sage/40 bg-white p-4 transition-colors hover:border-brand has-checked:border-brand has-checked:bg-brand/5 has-focus-visible:outline-4 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent has-disabled:cursor-not-allowed has-disabled:border-dashed has-disabled:bg-paper';
+  'flex cursor-pointer items-start gap-4 rounded-lg border-2 border-sage/40 bg-[#FFFFFF] p-4 transition-colors hover:border-brand has-checked:border-brand has-checked:bg-brand/5 has-focus-visible:outline-4 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent has-disabled:cursor-not-allowed has-disabled:border-dashed has-disabled:bg-paper';
 
 // ---- Simulador ----
 export function Simulador({ rows }: { rows: Arancel[] }) {
@@ -289,7 +289,7 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
         Esta simulación es una estimación orientativa. Los importes pueden cambiar por decisión de la comisión de la biblioteca.
       </p>
       <button
-        className="mt-5 inline-flex min-h-14 w-full items-center justify-center rounded-lg bg-brand px-6 text-lg font-bold text-white transition-colors hover:bg-brand/90"
+        className="mt-5 inline-flex min-h-14 w-full items-center justify-center rounded-lg bg-brand px-6 text-lg font-bold text-[#F4EDE0] transition-colors hover:bg-brand/90"
         onClick={guardar}
         type="button"
       >
@@ -428,7 +428,7 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
                 <span className="block text-lg font-bold">Fotocopias por mes (opcional)</span>
                 <span className="block text-base text-ink/80">Blanco y negro, {formatARS(precioCopia)} cada una.</span>
                 <input
-                  className="mt-2 h-14 w-full max-w-48 rounded-lg border-2 border-sage/60 bg-white px-4 text-xl font-bold tabular-nums"
+                  className="mt-2 h-14 w-full max-w-48 rounded-lg border-2 border-sage/60 bg-[#FFFFFF] px-4 text-xl font-bold tabular-nums"
                   inputMode="numeric"
                   min={0}
                   onChange={(e) => {
@@ -482,7 +482,7 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
                 <div className="flex flex-wrap items-center gap-3" role="group" aria-label="Confirmar borrado">
                   <p className="text-lg font-bold">¿Borrar todo?</p>
                   <button
-                    className="min-h-12 rounded-lg bg-accent px-5 text-lg font-bold text-white transition-colors hover:bg-accent/90"
+                    className="min-h-12 rounded-lg bg-accent px-5 text-lg font-bold text-[#F4EDE0] transition-colors hover:bg-accent/90"
                     onClick={borrarTodo}
                     type="button"
                   >
@@ -547,7 +547,7 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
                         {formatARS(e.total)}
                       </p>
                       <button
-                        className="min-h-12 rounded-lg bg-brand px-4 text-lg font-bold text-white transition-colors hover:bg-brand/90"
+                        className="min-h-12 rounded-lg bg-brand px-4 text-lg font-bold text-[#F4EDE0] transition-colors hover:bg-brand/90"
                         onClick={() => { cargar(e); }}
                         type="button"
                       >
@@ -555,7 +555,7 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
                       </button>
                       <button
                         aria-label={`Borrar la cuenta guardada el ${fechaLarga(e.date)}`}
-                        className="min-h-12 rounded-lg border-2 border-accent px-4 text-lg font-bold text-accent transition-colors hover:bg-accent hover:text-white"
+                        className="min-h-12 rounded-lg border-2 border-accent px-4 text-lg font-bold text-accent transition-colors hover:bg-accent hover:text-[#F4EDE0]"
                         onClick={() => borrarUna(e.id)}
                         type="button"
                       >
@@ -570,12 +570,12 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
         </section>
       </div>
 
-      <div className="sticky bottom-0 z-20 -mx-4 flex items-center justify-between gap-4 border-t-4 border-accent bg-brand px-4 py-3 text-white lg:hidden">
+      <div className="sticky bottom-0 z-20 -mx-4 flex items-center justify-between gap-4 border-t-4 border-accent bg-brand px-4 py-3 text-[#F4EDE0] lg:hidden">
         <p className="text-lg font-bold">
           Total estimado <span className="ml-1 text-2xl tabular-nums">{formatARS(total)}</span>
         </p>
         <a
-          className="inline-flex min-h-12 items-center rounded-lg bg-paper px-4 text-lg font-bold text-brand focus-visible:outline-white"
+          className="inline-flex min-h-12 items-center rounded-lg bg-paper px-4 text-lg font-bold text-brand focus-visible:outline-[#F4EDE0]"
           href="#resumen"
         >
           Ver detalle

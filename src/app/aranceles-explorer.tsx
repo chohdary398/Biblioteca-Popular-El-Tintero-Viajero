@@ -43,7 +43,7 @@ export function ArancelesExplorer({ rows }: { rows: Arancel[] }) {
   return (
     <section aria-label="Lista de aranceles" className="px-4 pb-14 sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <div className="w-full overflow-hidden rounded-xl bg-brand p-4 text-white shadow-lg sm:p-7">
+        <div className="w-full overflow-hidden rounded-xl bg-brand p-4 text-[#F4EDE0] shadow-lg sm:p-7">
           <label className="block text-lg font-bold" htmlFor={searchId}>
             ¿Qué estás buscando?
           </label>
@@ -61,7 +61,7 @@ export function ArancelesExplorer({ rows }: { rows: Arancel[] }) {
             </svg>
             <input
               autoComplete="off"
-              className="h-14 w-full rounded-lg border-2 border-transparent bg-white pr-2 pl-11 text-[13px] placeholder:text-[13px] sm:pl-13 sm:text-xl sm:placeholder:text-xl text-ink placeholder:text-ink/60 focus-visible:outline-white"
+              className="h-14 w-full rounded-lg border-2 border-transparent bg-[#FFFFFF] pr-2 pl-11 text-[13px] placeholder:text-[13px] sm:pl-13 sm:text-xl sm:placeholder:text-xl text-ink placeholder:text-ink/60 focus-visible:outline-[#F4EDE0]"
               id={searchId}
               onChange={(e) => { setQ(e.target.value); }}
               placeholder="Buscar taller, cuota o servicio..."
@@ -88,10 +88,10 @@ export function ArancelesExplorer({ rows }: { rows: Arancel[] }) {
               return (
                 <button
                   aria-pressed={on}
-                  className={`flex min-h-14 w-full items-center justify-between gap-2 rounded-lg border-2 px-4 py-3 text-left sm:justify-center sm:text-center text-lg leading-tight font-bold transition-colors focus-visible:outline-white ${
+                  className={`flex min-h-14 w-full items-center justify-between gap-2 rounded-lg border-2 px-4 py-3 text-left sm:justify-center sm:text-center text-lg leading-tight font-bold transition-colors focus-visible:outline-[#F4EDE0] ${
                     on
-                      ? 'border-white bg-white text-brand'
-                      : 'border-white/40 bg-white/5 text-white hover:bg-white/15'
+                      ? 'border-[#F4EDE0] bg-[#FFFFFF] text-brand'
+                      : 'border-[#F4EDE0]/40 bg-[#F4EDE0]/5 text-[#F4EDE0] hover:bg-[#F4EDE0]/15'
                   }`}
                   key={t.id}
                   onClick={() => { setFiltro(t.id); }}
@@ -99,7 +99,7 @@ export function ArancelesExplorer({ rows }: { rows: Arancel[] }) {
                 >
                   {t.label}
                   <span
-                    className={`rounded-full px-2 text-base ${on ? 'bg-brand text-white' : 'bg-white/20 text-white'}`}
+                    className={`rounded-full px-2 text-base ${on ? 'bg-brand text-[#F4EDE0]' : 'bg-[#F4EDE0]/20 text-[#F4EDE0]'}`}
                   >
                     {cuenta(t.id)}
                   </span>
@@ -109,19 +109,19 @@ export function ArancelesExplorer({ rows }: { rows: Arancel[] }) {
           </div>
 
           {muestraSwitch ? (
-            <div className="mt-5 flex items-center gap-4 border-t border-white/25 pt-5">
+            <div className="mt-5 flex items-center gap-4 border-t border-[#F4EDE0]/25 pt-5">
               <button
                 aria-checked={socio}
                 aria-labelledby={`${searchId}-socio`}
-                className={`relative h-10 w-[4.5rem] shrink-0 rounded-full border-2 border-white transition-colors focus-visible:outline-white ${
-                  socio ? 'bg-accent' : 'bg-white/20'
+                className={`relative h-10 w-[4.5rem] shrink-0 rounded-full border-2 border-[#F4EDE0] transition-colors focus-visible:outline-[#F4EDE0] ${
+                  socio ? 'bg-accent' : 'bg-[#F4EDE0]/20'
                 }`}
                 onClick={() => { setSocio((v) => !v); }}
                 role="switch"
                 type="button"
               >
                 <span
-                  className={`absolute top-0.5 size-7 rounded-full bg-white shadow transition-all ${
+                  className={`absolute top-0.5 size-7 rounded-full bg-[#FFFFFF] shadow transition-all ${
                     socio ? 'left-[2.2rem]' : 'left-0.5'
                   }`}
                 />
@@ -148,7 +148,7 @@ export function ArancelesExplorer({ rows }: { rows: Arancel[] }) {
               Probá con otra palabra, o mirá todo el listado. Si no aparece, preguntá en la mesa de préstamos.
             </p>
             <button
-              className="mt-5 inline-flex min-h-14 items-center justify-center rounded-lg bg-brand px-7 text-lg font-bold text-white transition-colors hover:bg-brand/90"
+              className="mt-5 inline-flex min-h-14 items-center justify-center rounded-lg bg-brand px-7 text-lg font-bold text-[#F4EDE0] transition-colors hover:bg-brand/90"
               onClick={() => {
                 setQ('');
                 setFiltro('todos');
@@ -224,7 +224,7 @@ function Ficha({ r, socio }: { r: Arancel; socio: boolean }) {
 
       <div className="mt-4">
         {sinCargo ? (
-          <span className="inline-block rounded-md bg-accent px-4 py-1 text-2xl font-bold text-white">Sin cargo</span>
+          <span className="inline-block rounded-md bg-accent px-4 py-1 text-2xl font-bold text-[#F4EDE0]">Sin cargo</span>
         ) : esTaller ? (
           <>
             <p className="text-base font-bold text-sage">{socio ? 'Precio para socios' : 'Precio de lista'}</p>

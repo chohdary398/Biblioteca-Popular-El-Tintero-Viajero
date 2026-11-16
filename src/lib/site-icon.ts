@@ -38,7 +38,7 @@ function isLight(color: string): boolean {
 /** A rounded square in `color` with the name's initials. `color` is any CSS colour (`--color-brand` of globals.css). */
 export function siteIconSvg(name: string, color: string): string {
   const letters = initials(name);
-  const fill = /^[#\w(),.%\s/-]+$/.test(color) ? color : '#18181b';
+  const fill = /^[#\w(),.%\s/-]+$/.test(color) ? color : '#23395D';
   const size = letters.length > 1 ? 30 : 38;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="${fill}"/><text x="32" y="33" dominant-baseline="central" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif" font-size="${String(size)}" font-weight="700" fill="${isLight(fill) ? '#18181b' : '#ffffff'}">${escape(letters)}</text></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="${fill}"/><text x="32" y="33" dominant-baseline="central" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif" font-size="${String(size)}" font-weight="700" fill="${isLight(fill) ? '#23395D' : '#F4EDE0'}">${escape(letters)}</text></svg>`;
 }

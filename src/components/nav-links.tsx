@@ -13,8 +13,8 @@ export function NavLinks({ links }: { links: { href: string; label: string }[] }
         return (
           <Link
             aria-current={active ? 'page' : undefined}
-            className={`flex min-h-14 items-center justify-center rounded-t-xl px-3 text-center text-base leading-tight font-bold transition-colors focus-visible:outline-white sm:px-6 ${
-              active ? 'bg-paper text-brand' : 'bg-white/10 text-white hover:bg-white/20'
+            className={`flex min-h-14 items-center justify-center rounded-t-xl px-3 text-center text-base leading-tight font-bold transition-colors focus-visible:outline-[#F4EDE0] sm:px-6 ${
+              active ? 'bg-paper text-brand' : 'bg-[#F4EDE0]/10 text-[#F4EDE0] hover:bg-[#F4EDE0]/20'
             }`}
             href={l.href}
             key={l.href}
