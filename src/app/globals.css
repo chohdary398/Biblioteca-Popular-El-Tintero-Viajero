@@ -1,9 +1,13 @@
 @import 'tailwindcss';
 
-/* The project's design tokens (colours, radius): see _system-docs/design.md. */
+/* Ficha de biblioteca: papel curtido, tinta azul, sello rojo. Colores de la paleta de la biblioteca. */
 @theme {
-  --color-brand: oklch(0.55 0.2 260);
-  --color-accent: oklch(0.75 0.15 70);
+  --color-brand: #23395d; /* tinta azul: títulos, cabeceras, botones principales */
+  --color-accent: #e23a3a; /* sello rojo: estados, avisos, resaltados */
+  --color-paper: #f4ede0; /* fondo: papel curtido */
+  --color-card: #ffffff; /* fichas */
+  --color-sage: #6e7f5a; /* bordes y detalles */
+  --color-ink: #1e1e1e; /* texto principal */
 }
 
 /*
@@ -14,4 +18,88 @@
 @theme inline {
   --font-sans: var(--font-body, ui-sans-serif), system-ui, sans-serif;
   --font-display: var(--font-heading, var(--font-body, ui-sans-serif)), system-ui, sans-serif;
+}
+
+@layer base {
+  /* Letra grande para lectores mayores: 1rem = 20px, y todo lo demás escala. */
+  html {
+    font-size: 20px;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    line-height: 1.6;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35 0 0 0 0 .28 0 0 0 0 .15 0 0 0 .08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  :focus-visible {
+    outline: 4px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@layer components {
+  /* La ficha: cartulina blanca con borde fino verde apagado. */
+  .ficha {
+    position: relative;
+    background-color: var(--color-card);
+    border: 1px solid color-mix(in oklab, var(--color-sage) 55%, white);
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 22px -16px rgb(35 57 93 / 0.45);
+  }
+  /* El agujero por donde pasa la varilla del fichero. */
+  .ficha-hole::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0.7rem;
+    width: 0.95rem;
+    height: 0.95rem;
+    transform: translateX(-50%);
+    border-radius: 9999px;
+    background: var(--color-paper);
+    border: 1px solid color-mix(in oklab, var(--color-sage) 55%, white);
+    box-shadow: inset 0 2px 3px rgb(30 30 30 / 0.18);
+  }
+  /* Renglones celestes de la ficha. */
+  .ficha-lines {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(2rem - 1px),
+      color-mix(in oklab, var(--color-brand) 13%, transparent) calc(2rem - 1px),
+      color-mix(in oklab, var(--color-brand) 13%, transparent) 2rem
+    );
+    background-position: 0 1rem;
+  }
+  /* Pila de fichas detrás. */
+  .ficha-pila {
+    box-shadow:
+      6px 6px 0 0 #fff,
+      6px 6px 0 1px color-mix(in oklab, var(--color-sage) 55%, white),
+      12px 12px 0 0 #fff,
+      12px 12px 0 1px color-mix(in oklab, var(--color-sage) 55%, white),
+      0 26px 34px -22px rgb(35 57 93 / 0.5);
+  }
+  /* Sello de goma rojo. */
+  .sello {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    color: var(--color-accent);
+    border: 3px solid var(--color-accent);
+    border-radius: 0.45rem;
+    box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px var(--color-accent);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    text-align: center;
+    transform: rotate(-5deg);
+    mix-blend-mode: multiply;
+    background-color: rgb(226 58 58 / 0.06);
+  }
 }

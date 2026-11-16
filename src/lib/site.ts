@@ -1,7 +1,10 @@
 // The app's name and header links, in one place: the header, the footer and every page title read them.
 export const site = {
-  name: 'New Totalum app',
-  description: 'Built with Totalum',
+  name: 'Biblioteca Popular El Tintero Viajero',
+  /** The name on two lines for the header (kicker, title). */
+  nameLines: ['Biblioteca Popular', 'El Tintero Viajero'] as const,
+  description:
+    'Aranceles, cuotas sociales y talleres de la Biblioteca Popular El Tintero Viajero de Paraná, con buscador y un simulador de cuota para que sepas cuánto te sale.',
   /** The logo image's URL (the user's file): the header, the footer and the browser icon show it. Empty: the name alone. */
   logo: '',
   /**
@@ -28,7 +31,10 @@ export const site = {
   /** The owner's and staff's addresses for admin pages: one counts only once its account verified the e-mail (`isAdmin`, `@/lib/admin`). */
   admins: [] as string[],
   /** Links everyone sees (landing sections, public pages). */
-  nav: [] as { href: string; label: string }[],
+  nav: [
+    { href: '/', label: 'Aranceles y Talleres' },
+    { href: '/simulador', label: 'Simulador de Cuota' },
+  ] as { href: string; label: string }[],
   /** Links only signed-in users see (dashboard, lists, admin). */
   appNav: [{ href: '/account', label: 'Account' }] as { href: string; label: string }[],
 };
