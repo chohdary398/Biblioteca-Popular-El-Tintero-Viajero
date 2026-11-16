@@ -5,12 +5,23 @@ import { useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { type Arancel, conDescuento, DESCUENTO_SOCIO, formatARS, ordenar } from '@/lib/aranceles';
 
 type Linea = { label: string; detail: string; amount: number };
-type Entrada = { id: string; date: string; lines: Linea[]; total: number };
+type Entrada = {
+  id: string;
+  date: string;
+  lines: Linea[];
+  total: number;
+  cuotaId: string;
+  cuotaNombre: string;
+  meses: 1 | 3 | 6;
+  talleres: { id: string; nombre: string; monto: number }[];
+  copias: number;
+  desglose: { cuota: number; talleres: number; copias: number };
+};
 
 // ---- Historial en el navegador (localStorage), sin base de datos ni cuentas ----
-const KEY = 'tintero-viajero:historial';
-const EVT = 'tintero-viajero:historial';
-const MAX = 30;
+const KEY = 'tintero_viajero_simulaciones_v1';
+const EVT = 'tintero_viajero_simulaciones_v1';
+const MAX = 3;
 
 const leer = () => {
   try {
@@ -48,13 +59,19 @@ const esEntrada = (e: unknown): e is Entrada => {
     typeof o.date === 'string' &&
     typeof o.total === 'number' &&
     Array.isArray(o.lines) &&
-    o.lines.every(esLinea)
+    o.lines.every(esLinea) &&
+    typeof o.cuotaId === 'string' &&
+    typeof o.cuotaNombre === 'string' &&
+    (o.meses === 1 || o.meses === 3 || o.meses === 6) &&
+    Array.isArray(o.talleres) &&
+    typeof o.copias === 'number' &&
+    !!o.desglose
   );
 };
 const parsear = (raw: string): Entrada[] => {
   try {
     const v: unknown = JSON.parse(raw);
-    return Array.isArray(v) ? (v as unknown[]).filter(esEntrada) : [];
+    return Array.isArray(v) ? (v as unknown[]).filter(esEntrada).slice(0, MAX) : [];
   } catch {
     return [];
   }
@@ -158,6 +175,12 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
       date: new Date().toISOString(),
       lines,
       total,
+      cuotaId,
+      cuotaNombre: cuota ? cuota.nombre : 'No socio',
+      meses,
+      talleres: r.elegidosT.map((t) => ({ id: t.id, nombre: t.nombre, monto: precioTaller(t.precio ?? 0) * meses })),
+      copias,
+      desglose: { cuota: r.subCuota, talleres: r.subTalleres, copias: r.subCopias },
     };
     const ok = escribir([entrada, ...(historial ?? [])].slice(0, MAX));
     setAviso(
@@ -165,6 +188,15 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
         ? { ok: true, text: 'Listo, quedó guardado en tu historial.' }
         : { ok: false, text: 'No pudimos guardar en este navegador. Fijate si tenés el almacenamiento bloqueado.' },
     );
+  };
+  const cargar = (e: Entrada) => {
+    const cuotaOk = e.cuotaId === 'no-socio' || cuotas.some((c) => c.id === e.cuotaId);
+    setCuotaId(cuotaOk ? e.cuotaId : 'no-socio');
+    setElegidos(e.talleres.map((t) => t.id).filter((id) => talleres.some((t) => t.id === id)).slice(0, MAX_TALLERES));
+    setCopias(clamp(e.copias));
+    setMeses(e.meses);
+    setAviso({ ok: true, text: 'Cargamos esa cuenta en el simulador. Podés revisarla o cambiarla.' });
+    document.getElementById('resumen')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
   const borrarUna = (id: string) => escribir((historial ?? []).filter((e) => e.id !== id));
   const borrarTodo = () => {
@@ -383,7 +415,7 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
               <h2 className="font-display text-2xl font-black text-brand sm:text-3xl" id="historial">
                 Mi historial
               </h2>
-              <p className="mt-1 text-lg">Queda en este dispositivo: no hace falta tener cuenta.</p>
+              <p className="mt-1 text-lg">Guardamos tus últimas 3 cuentas en este dispositivo: no hace falta tener cuenta.</p>
             </div>
             {historial && historial.length > 0 ? (
               confirmaBorrar ? (
@@ -434,6 +466,9 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
                 <li className="flex" key={e.id}>
                   <article className="ficha ficha-hole flex w-full flex-col p-5 pb-12 sm:p-6 sm:pb-12">
                     <p className="text-base font-bold text-sage">{fechaLarga(e.date)}</p>
+                    <p className="mt-1 text-base">
+                      {e.cuotaNombre} · {String(e.meses)} {e.meses === 1 ? 'mes' : 'meses'}
+                    </p>
                     <div className="mt-2 h-0.5 bg-accent/70" />
                     <ul className="mt-2 flex-1">
                       {e.lines.map((l, i) => (
@@ -448,6 +483,13 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
                         <span className="mr-2 text-base">Total</span>
                         {formatARS(e.total)}
                       </p>
+                      <button
+                        className="min-h-12 rounded-lg bg-brand px-4 text-lg font-bold text-white transition-colors hover:bg-brand/90"
+                        onClick={() => { cargar(e); }}
+                        type="button"
+                      >
+                        Cargar
+                      </button>
                       <button
                         aria-label={`Borrar la cuenta guardada el ${fechaLarga(e.date)}`}
                         className="min-h-12 rounded-lg border-2 border-accent px-4 text-lg font-bold text-accent transition-colors hover:bg-accent hover:text-white"
