@@ -24,8 +24,7 @@ export default async function SimuladorPage() {
     <main>
       <FichaHero kicker="Ficha de cálculo · Paraná" stamp="Es solo una estimación" title="Simulador de Cuota">
         <p>
-          Armá tu cuenta en tres pasos: tu cuota, los talleres que te gustan y lo que necesites de los servicios.
-          Si querés, la guardás para mirarla después.
+          Contanos si sos socio, qué talleres te gustan y por cuántos meses querés calcular. Te mostramos el detalle en una ficha.
         </p>
       </FichaHero>
       <Simulador rows={rows} />

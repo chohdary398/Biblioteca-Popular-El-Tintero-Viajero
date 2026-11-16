@@ -67,6 +67,7 @@ const fechaLarga = (iso: string) => {
 };
 
 const clamp = (n: number) => Math.max(0, Math.min(999, Math.floor(Number.isFinite(n) ? n : 0)));
+const MAX_TALLERES = 3;
 
 // ---- Piezas ----
 function Paso({ n, titulo, children }: { n: number; titulo: string; children: ReactNode }) {
@@ -91,105 +92,61 @@ function Paso({ n, titulo, children }: { n: number; titulo: string; children: Re
 const opcion =
   'flex cursor-pointer items-start gap-4 rounded-lg border-2 border-sage/40 bg-white p-4 transition-colors hover:border-brand has-checked:border-brand has-checked:bg-brand/5 has-focus-visible:outline-4 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent has-disabled:cursor-not-allowed has-disabled:border-dashed has-disabled:bg-paper';
 
-function Stepper(props: {
-  label: string;
-  hint?: ReactNode;
-  value: number;
-  onChange: (n: number) => void;
-  unit?: string;
-}) {
-  const { value, onChange } = props;
-  const boton =
-    'grid size-12 shrink-0 place-items-center rounded-lg border-2 border-brand bg-white text-2xl leading-none font-bold text-brand transition-colors hover:bg-brand hover:text-white disabled:border-sage/40 disabled:text-sage/60 disabled:hover:bg-white disabled:hover:text-sage/60';
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-sage/40 bg-white p-4">
-      <div className="min-w-0 flex-1 basis-44">
-        <p className="text-lg leading-snug font-bold">{props.label}</p>
-        {props.hint ? <p className="text-base text-ink/80">{props.hint}</p> : null}
-      </div>
-      <div className="flex items-center gap-2">
-        <button
-          aria-label={`Una menos: ${props.label}`}
-          className={boton}
-          disabled={value <= 0}
-          onClick={() => { onChange(clamp(value - 1)); }}
-          type="button"
-        >
-          −
-        </button>
-        <input
-          aria-label={props.label}
-          className="h-12 w-20 rounded-lg border-2 border-sage/60 bg-white text-center text-xl font-bold tabular-nums"
-          inputMode="numeric"
-          onChange={(e) => { onChange(clamp(Number(e.target.value.replace(/\D/g, '')))); }}
-          onFocus={(e) => { e.target.select(); }}
-          pattern="[0-9]*"
-          type="text"
-          value={String(value)}
-        />
-        <button
-          aria-label={`Una más: ${props.label}`}
-          className={boton}
-          disabled={value >= 999}
-          onClick={() => { onChange(clamp(value + 1)); }}
-          type="button"
-        >
-          +
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ---- Simulador ----
 export function Simulador({ rows }: { rows: Arancel[] }) {
   const todos = useMemo(() => ordenar(rows), [rows]);
   const cuotas = todos.filter((r) => r.grupo === 'cuotas' && r.precio !== null);
   const talleres = todos.filter((r) => r.grupo === 'talleres' && r.precio !== null);
-  const servicios = todos.filter((r) => r.grupo === 'servicios');
-  const porId = (id: string) => servicios.find((s) => s.id === id);
-  const sinCargo = servicios.filter((s) => s.estado === 'sin_cargo' || s.precio === null);
+  const precioCopia = todos.find((r) => r.id === 'serv-fotocopia')?.precio ?? 120;
 
-  const [cuotaId, setCuotaId] = useState(cuotas[0]?.id ?? '');
+  const [cuotaId, setCuotaId] = useState('no-socio');
   const [elegidos, setElegidos] = useState<string[]>([]);
-  const [cant, setCant] = useState<Record<string, number>>({});
-  const [libros, setLibros] = useState(0);
-  const [dias, setDias] = useState(0);
+  const [copias, setCopias] = useState(0);
+  const [meses, setMeses] = useState<1 | 3 | 6>(1);
   const [aviso, setAviso] = useState<{ ok: boolean; text: string } | null>(null);
   const [confirmaBorrar, setConfirmaBorrar] = useState(false);
 
-  const q = (id: string) => cant[id] ?? 0;
-  const setQ = (id: string, n: number) => {
-    setCant((c) => ({ ...c, [id]: n }));
-    setAviso(null);
-  };
+  const cuota = cuotas.find((c) => c.id === cuotaId);
+  const esSocio = !!cuota;
+  const llenos = elegidos.length >= MAX_TALLERES;
+  const precioTaller = (p: number) => (esSocio ? conDescuento(p) : p);
 
-  const { lines, total, ahorro } = useMemo(() => {
+  const r = useMemo(() => {
+    const mensualCuota = cuota?.precio ?? 0;
+    const cuotaBruta = mensualCuota * meses;
+    const ahorroCuota = meses === 6 ? Math.round(cuotaBruta * 0.15) : 0;
+    const subCuota = cuotaBruta - ahorroCuota;
+    const elegidosT = talleres.filter((t) => t.estado !== 'suspendido' && elegidos.includes(t.id));
+    const mensualTalleres = elegidosT.reduce((a, t) => a + precioTaller(t.precio ?? 0), 0);
+    const subTalleres = mensualTalleres * meses;
+    const subCopias = copias * precioCopia * meses;
+    const total = subCuota + subTalleres + subCopias;
+    const mensualSinDesc = mensualCuota + mensualTalleres + copias * precioCopia;
+    return { mensualCuota, ahorroCuota, subCuota, elegidosT, mensualTalleres, subTalleres, subCopias, total, mensualSinDesc };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cuota, talleres, elegidos, copias, meses, precioCopia, esSocio]);
+
+  const lines = useMemo(() => {
     const out: Linea[] = [];
-    let ahorroTalleres = 0;
-    const cuota = cuotas.find((c) => c.id === cuotaId);
-    if (cuota?.precio != null) out.push({ label: cuota.nombre, detail: `Cuota social ${cuota.unidad}`, amount: cuota.precio });
-    for (const t of talleres) {
-      if (t.estado === 'suspendido' || !elegidos.includes(t.id) || t.precio === null) continue;
-      const socio = conDescuento(t.precio);
-      ahorroTalleres += t.precio - socio;
-      out.push({ label: t.nombre, detail: `Taller ${t.unidad}: lista ${formatARS(t.precio)}, con ${String(DESCUENTO_SOCIO)}% de socio`, amount: socio });
-    }
-    for (const s of servicios) {
-      if (s.precio === null || s.id === 'serv-multa') continue;
-      const n = cant[s.id] ?? 0;
-      if (n > 0) out.push({ label: s.nombre, detail: `${String(n)} × ${formatARS(s.precio)}${s.unidad ? ` ${s.unidad}` : ''}`, amount: n * s.precio });
-    }
-    const multa = servicios.find((s) => s.id === 'serv-multa');
-    if (multa?.precio != null && libros > 0 && dias > 0) {
+    const m = `${String(meses)} ${meses === 1 ? 'mes' : 'meses'}`;
+    if (cuota) {
       out.push({
-        label: multa.nombre,
-        detail: `${String(libros)} ${libros === 1 ? 'libro' : 'libros'} × ${String(dias)} ${dias === 1 ? 'día' : 'días'} × ${formatARS(multa.precio)}`,
-        amount: libros * dias * multa.precio,
+        label: `Cuota social: ${cuota.nombre}`,
+        detail: `${formatARS(r.mensualCuota)} × ${m}${meses === 6 ? ' con 15% de ahorro' : ''}`,
+        amount: r.subCuota,
       });
     }
-    return { lines: out, total: out.reduce((a, l) => a + l.amount, 0), ahorro: ahorroTalleres };
-  }, [cuotas, talleres, servicios, cuotaId, elegidos, cant, libros, dias]);
+    for (const t of r.elegidosT) {
+      out.push({ label: `Taller: ${t.nombre}`, detail: `${formatARS(precioTaller(t.precio ?? 0))} × ${m}`, amount: precioTaller(t.precio ?? 0) * meses });
+    }
+    if (copias > 0) out.push({ label: 'Fotocopias', detail: `${String(copias)} × ${formatARS(precioCopia)} × ${m}`, amount: r.subCopias });
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [r, cuota, copias, meses, precioCopia, esSocio]);
+
+  const total = r.total;
+  const equivalente = total / meses;
+  const nMeses = `${String(meses)} ${meses === 1 ? 'mes' : 'meses'}`;
 
   // Historial
   const raw = useSyncExternalStore(suscribir, leer, () => null);
@@ -215,32 +172,58 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
     setConfirmaBorrar(false);
   };
 
+  const fila = 'flex items-baseline justify-between gap-4 border-b border-dotted border-sage/60 py-3';
   const resumen = (
     <div className="ficha ficha-hole p-5 pb-12 sm:p-7 sm:pb-12" id="resumen">
-      <h2 className="font-display text-xl font-black text-brand sm:text-2xl">Tu cuenta estimada</h2>
+      <h2 className="font-display text-xl font-black text-brand sm:text-2xl">Tu cuenta estimada · {nMeses}</h2>
       <div className="mt-3 h-0.5 bg-accent/70" />
       <ul className="mt-2">
-        {lines.map((l) => (
-          <li className="flex items-baseline justify-between gap-4 border-b border-dotted border-sage/60 py-3" key={l.label}>
-            <div className="min-w-0">
-              <p className="leading-snug font-bold break-words">{l.label}</p>
-              <p className="text-base text-ink/80">{l.detail}</p>
-            </div>
-            <p className="shrink-0 text-xl font-bold tabular-nums">{formatARS(l.amount)}</p>
-          </li>
-        ))}
+        <li className={fila}>
+          <div className="min-w-0">
+            <p className="leading-snug font-bold">Subtotal Cuota Social</p>
+            <p className="text-base text-ink/80">
+              {!esSocio
+                ? 'No socio: sin cuota social'
+                : meses === 6
+                  ? `${formatARS(r.mensualCuota)} × 6, con 15% de ahorro por 6 meses (ahorrás ${formatARS(r.ahorroCuota)})`
+                  : `${formatARS(r.mensualCuota)} × ${nMeses}, sin descuento`}
+            </p>
+          </div>
+          <p className="shrink-0 text-xl font-bold tabular-nums">{formatARS(r.subCuota)}</p>
+        </li>
+        <li className={fila}>
+          <div className="min-w-0">
+            <p className="leading-snug font-bold">Subtotal Talleres</p>
+            <p className="text-base text-ink/80">
+              {r.elegidosT.length === 0
+                ? 'No elegiste talleres'
+                : `${formatARS(r.mensualTalleres)} × ${nMeses}${esSocio ? ', con 20% de descuento de socio' : ', precio de lista'}`}
+            </p>
+          </div>
+          <p className="shrink-0 text-xl font-bold tabular-nums">{formatARS(r.subTalleres)}</p>
+        </li>
+        <li className={fila}>
+          <div className="min-w-0">
+            <p className="leading-snug font-bold">Subtotal Fotocopias</p>
+            <p className="text-base text-ink/80">
+              {copias === 0 ? 'Sin fotocopias' : `${String(copias)} × ${formatARS(precioCopia)} × ${nMeses}, sin descuento`}
+            </p>
+          </div>
+          <p className="shrink-0 text-xl font-bold tabular-nums">{formatARS(r.subCopias)}</p>
+        </li>
       </ul>
       <div className="mt-4 flex items-baseline justify-between gap-4">
-        <p className="text-lg font-bold text-brand">Total estimado</p>
+        <p className="text-lg font-bold text-brand">Total del período</p>
         <p aria-live="polite" className="text-4xl font-bold text-brand tabular-nums">
-          {formatARS(total)}
+          {formatARS(total)} <span className="text-base">ARS</span>
         </p>
       </div>
-      {ahorro > 0 ? (
-        <p className="mt-2 text-lg font-bold text-accent">Por ser socio ahorrás {formatARS(ahorro)} en talleres.</p>
+      <p className="mt-3 text-xl font-bold text-accent">Te queda en {formatARS(equivalente)} por mes.</p>
+      {meses === 6 ? (
+        <p className="mt-1 text-lg">Sin el ahorro de 6 meses: {formatARS(r.mensualSinDesc)} ARS por mes.</p>
       ) : null}
       <p className="mt-4 border-l-4 border-accent bg-accent/5 py-2 pl-4 text-lg font-bold">
-        Es una estimación: el cobro se hace en la mesa de préstamos.
+        Esta simulación es una estimación orientativa. Los importes pueden cambiar por decisión de la comisión de la biblioteca.
       </p>
       <button
         className="mt-5 inline-flex min-h-14 w-full items-center justify-center rounded-lg bg-brand px-6 text-lg font-bold text-white transition-colors hover:bg-brand/90"
@@ -257,14 +240,15 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
     </div>
   );
 
+
   return (
     <div className="px-4 pb-0 sm:px-6">
       <div className="mx-auto max-w-6xl">
         <div className="grid items-start gap-8 lg:grid-cols-[1.35fr_1fr]">
           <div className="grid min-w-0 gap-8">
-            <Paso n={1} titulo="Elegí tu cuota social">
+            <Paso n={1} titulo="Tu condición de socio">
               <div className="grid gap-3 sm:grid-cols-2" role="radiogroup">
-                {cuotas.map((c) => (
+                {[{ id: 'no-socio', nombre: 'No socio (sin cuota social)', precio: null as number | null }, ...cuotas].map((c) => (
                   <label className={opcion} key={c.id}>
                     <input
                       checked={cuotaId === c.id}
@@ -279,29 +263,37 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
                     />
                     <span className="min-w-0">
                       <span className="block leading-snug font-bold">{c.nombre}</span>
-                      <span className="block text-xl font-bold text-brand tabular-nums">
-                        {formatARS(c.precio ?? 0)} <span className="text-base text-sage">{c.unidad}</span>
-                      </span>
+                      {c.precio !== null ? (
+                        <span className="block text-xl font-bold text-brand tabular-nums">
+                          {formatARS(c.precio)} <span className="text-base text-sage">por mes</span>
+                        </span>
+                      ) : null}
                     </span>
                   </label>
                 ))}
               </div>
             </Paso>
 
-            <Paso n={2} titulo="Sumá los talleres que te gusten">
+            <Paso n={2} titulo="Elegí hasta 3 talleres">
               <p className="mb-4 text-lg">
-                Como socio o socia pagás {DESCUENTO_SOCIO}% menos que el precio de lista.
+                {esSocio ? `Ves los precios con ${String(DESCUENTO_SOCIO)}% de descuento de socio.` : 'Ves el precio lleno, sin descuento de socio.'}
               </p>
+              {llenos ? (
+                <p className="mb-4 border-l-4 border-accent bg-accent/5 py-2 pl-4 text-lg font-bold" role="status">
+                  Ya elegiste 3 talleres, que es el máximo. Para sumar otro, sacá uno.
+                </p>
+              ) : null}
               <div className="grid gap-3">
                 {talleres.map((t) => {
                   const susp = t.estado === 'suspendido';
-                  const lista = t.precio ?? 0;
+                  const marcado = !susp && elegidos.includes(t.id);
+                  const bloqueado = susp || (llenos && !marcado);
                   return (
                     <label className={opcion} key={t.id}>
                       <input
-                        checked={!susp && elegidos.includes(t.id)}
+                        checked={marcado}
                         className="mt-1 size-6 shrink-0 accent-brand"
-                        disabled={susp}
+                        disabled={bloqueado}
                         onChange={(e) => {
                           setElegidos((cur) => (e.target.checked ? [...cur, t.id] : cur.filter((x) => x !== t.id)));
                           setAviso(null);
@@ -315,15 +307,21 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
                           {t.cupo !== null ? ` · Cupo: ${String(t.cupo)}` : ''}
                         </span>
                         <span className="mt-1 flex flex-wrap items-baseline gap-x-3">
-                          <span className="text-xl font-bold text-brand tabular-nums">{formatARS(conDescuento(lista))}</span>
+                          <span className="text-xl font-bold text-brand tabular-nums">{formatARS(precioTaller(t.precio ?? 0))}</span>
                           <span className="text-base text-ink/80">
-                            socio, <s className="tabular-nums">{formatARS(lista)}</s> de lista · {t.unidad}
+                            {esSocio ? (
+                              <>
+                                con descuento, <s className="tabular-nums">{formatARS(t.precio ?? 0)}</s> de lista
+                              </>
+                            ) : (
+                              'precio lleno'
+                            )}{' '}
+                            · {t.unidad}
                           </span>
                         </span>
                         {susp ? (
                           <span className="mt-2 block">
                             <span className="sello text-base">Suspendido este mes</span>
-                            <span className="mt-2 block font-bold">Este taller vuelve el mes que viene</span>
                           </span>
                         ) : null}
                       </span>
@@ -333,56 +331,45 @@ export function Simulador({ rows }: { rows: Arancel[] }) {
               </div>
             </Paso>
 
-            <Paso n={3} titulo="Servicios, si necesitás alguno">
-              <p className="mb-4 text-lg">Poné cuántas hojas o unidades. Si no usás ninguno, dejalo en cero.</p>
-              <div className="grid gap-3">
-                {(['serv-fotocopia', 'serv-color', 'serv-escaneo', 'serv-carne'] as const).map((id) => {
-                  const s = porId(id);
-                  if (!s || s.precio === null) return null;
-                  return (
-                    <Stepper
-                      hint={`${formatARS(s.precio)}${s.unidad ? ` ${s.unidad}` : ' cada uno'}`}
-                      key={id}
-                      label={id === 'serv-carne' ? 'Reemplazo de carné' : s.nombre}
-                      onChange={(n) => { setQ(id, n); }}
-                      value={q(id)}
-                    />
-                  );
-                })}
-                {porId('serv-multa')?.precio != null ? (
-                  <div className="grid gap-3 rounded-lg border-2 border-dashed border-sage/60 p-3 sm:p-4">
-                    <p className="text-lg leading-snug font-bold">
-                      Multa por demora{' '}
-                      <span className="text-base font-normal text-ink/80">
-                        ({formatARS(porId('serv-multa')?.precio ?? 0)} por libro y por día)
-                      </span>
-                    </p>
-                    <Stepper
-                      label="Libros con demora"
-                      onChange={(n) => {
-                        setLibros(n);
-                        setAviso(null);
-                      }}
-                      value={libros}
-                    />
-                    <Stepper
-                      label="Días de demora"
-                      onChange={(n) => {
-                        setDias(n);
-                        setAviso(null);
-                      }}
-                      value={dias}
-                    />
-                  </div>
-                ) : null}
+            <Paso n={3} titulo="Fotocopias y período">
+              <label className="block">
+                <span className="block text-lg font-bold">Fotocopias por mes (opcional)</span>
+                <span className="block text-base text-ink/80">Blanco y negro, {formatARS(precioCopia)} cada una.</span>
+                <input
+                  className="mt-2 h-14 w-full max-w-48 rounded-lg border-2 border-sage/60 bg-white px-4 text-xl font-bold tabular-nums"
+                  inputMode="numeric"
+                  min={0}
+                  onChange={(e) => {
+                    setCopias(clamp(Number(e.target.value)));
+                    setAviso(null);
+                  }}
+                  type="number"
+                  value={copias}
+                />
+              </label>
+              <div className="mt-6">
+                <p className="text-lg font-bold">¿Por cuánto tiempo?</p>
+                <div className="mt-2 grid gap-3 sm:grid-cols-3" role="radiogroup">
+                  {([1, 3, 6] as const).map((m) => (
+                    <label className={opcion} key={m}>
+                      <input
+                        checked={meses === m}
+                        className="mt-1 size-6 shrink-0 accent-brand"
+                        name="periodo"
+                        onChange={() => {
+                          setMeses(m);
+                          setAviso(null);
+                        }}
+                        type="radio"
+                      />
+                      <span className="font-bold">{m === 1 ? '1 mes' : `${String(m)} meses`}</span>
+                    </label>
+                  ))}
+                </div>
+                <p className="mt-2 text-base text-ink/80">A 6 meses, la cuota social tiene 15% de ahorro.</p>
               </div>
-              {sinCargo.map((s) => (
-                <p className="mt-4 flex flex-wrap items-center gap-3 text-lg" key={s.id}>
-                  <span className="rounded-md bg-accent px-3 py-0.5 font-bold text-white">Sin cargo</span>
-                  {s.nombre}: no suma nada a la cuenta.
-                </p>
-              ))}
             </Paso>
+
           </div>
 
           <aside aria-label="Resumen" className="min-w-0 lg:sticky lg:top-6">
