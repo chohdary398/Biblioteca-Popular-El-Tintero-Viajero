@@ -7,7 +7,6 @@ import { ArancelesExplorer } from './aranceles-explorer';
 import { FichaHero } from '@/components/ficha-hero';
 import { db } from '@/db';
 import { aranceles } from '@/db/schema';
-import { loadPage } from '@/lib/load-page';
 
 
 export const metadata: Metadata = {
@@ -17,9 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const {
-    data: [rows],
-  } = await loadPage(() => [db.select().from(aranceles).orderBy(asc(aranceles.grupo), asc(aranceles.orden))]);
+  const rows = await db.select().from(aranceles).orderBy(asc(aranceles.grupo), asc(aranceles.orden));
 
   return (
     <main>
