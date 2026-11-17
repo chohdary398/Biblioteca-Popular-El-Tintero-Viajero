@@ -23,9 +23,30 @@ const KEY = 'tintero_viajero_simulaciones_v1';
 const EVT = 'tintero_viajero_simulaciones_v1';
 const MAX = 3;
 
+// Simulación de ejemplo que se precarga solo la primera vez (cuando la clave no existe).
+const EJEMPLO_INICIAL: Entrada = {
+  id: 'ejemplo-inicial-norma',
+  date: '2026-01-01T12:00:00.000Z',
+  lines: [
+    { label: 'Cuota social: Socio jubilado', detail: '$1.800 × 6 meses con 15% de ahorro', amount: 9180 },
+    { label: 'Taller: Encuadernación artesanal', detail: '$8.800 × 6 meses', amount: 52800 },
+  ],
+  total: 61980,
+  cuotaId: 'cuota-jubilado',
+  cuotaNombre: 'Socio jubilado',
+  meses: 6,
+  talleres: [{ id: 'taller-encuadernacion', nombre: 'Encuadernación artesanal', monto: 52800 }],
+  copias: 0,
+  desglose: { cuota: 9180, talleres: 52800, copias: 0 },
+};
+
 const leer = () => {
   try {
-    return window.localStorage.getItem(KEY) ?? '[]';
+    const guardado = window.localStorage.getItem(KEY);
+    if (guardado !== null) return guardado;
+    const inicial = JSON.stringify([EJEMPLO_INICIAL]);
+    window.localStorage.setItem(KEY, inicial);
+    return inicial;
   } catch {
     return '[]';
   }
