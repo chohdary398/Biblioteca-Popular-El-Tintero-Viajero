@@ -76,7 +76,6 @@ if (ios) {
     join(products, app),
     `mobile-artifacts/${app.replace(/\.app$/, '')}-simulator.zip`,
   ]);
-  console.log(`mobile-artifacts/${app.replace(/\.app$/, '')}-simulator.zip`);
 } else {
   setAndroidIdentity('android', MOBILE_APP_ID, MOBILE_APP_NAME);
   const task = TASKS[MOBILE_ARTIFACT];
@@ -85,5 +84,4 @@ if (ios) {
   const file = readdirSync(outDir).find((f) => f.endsWith('.apk') || f.endsWith('.aab'));
   if (!file) throw new Error(`no artefact in ${outDir}`);
   copyFileSync(join(outDir, file), join('mobile-artifacts', file));
-  console.log(`mobile-artifacts/${file}`);
 }

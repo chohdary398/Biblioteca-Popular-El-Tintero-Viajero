@@ -55,7 +55,6 @@ async function get(env, fetchImpl, path) {
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   try {
-    console.log(await (process.argv.includes('--status') ? mobileStatus() : mobileLogs()));
   } catch (err) {
     console.error(
       `mobile:${process.argv.includes('--status') ? 'status' : 'logs'} failed: ${err instanceof Error ? err.message : String(err)}`,

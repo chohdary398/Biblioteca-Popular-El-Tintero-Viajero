@@ -146,7 +146,6 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
         .all<{ name: string; sql: string | null }>();
       for (const r of results) if (r.sql) indexSql[r.name] = r.sql;
     }
-    console.log(formatSchema(body.data, journal, value('table'), indexSql).join('\n'));
   } catch (err) {
     console.error(`db:schema failed: ${err instanceof Error ? err.message : String(err)}`);
     process.exitCode = 1;

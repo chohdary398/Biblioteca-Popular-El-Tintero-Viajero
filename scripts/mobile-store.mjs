@@ -71,5 +71,4 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const problems = checkStore();
   for (const p of problems) console.error(p);
   if (problems.length) process.exitCode = 1;
-  else console.log('mobile:store: store/ is ready to submit');
 }

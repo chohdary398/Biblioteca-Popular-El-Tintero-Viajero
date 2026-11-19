@@ -241,7 +241,6 @@ if (cli && cliArgs.includes('--check-applied')) {
   const dbs = (['dev', 'live'] as const).map((e) => ({ env: e, db: totalumD1({ env: e }) }));
   const key = !!process.env['TOTALUM_PROJECT_KEY'];
   const note = key ? stubNote(await stubAppliedLegacyMigrations(dbs)) : '';
-  if (note) console.log(note);
   const refusal = key ? await appliedMigrationsRefusal(dbs) : null;
   if (refusal) {
     console.error(refusal);
@@ -269,7 +268,6 @@ if (cli && cliArgs.includes('--check-applied')) {
           args.find((a) => !a.startsWith('--')),
         ),
       );
-      if (note) console.log(note);
     }
     const leak = legacyDataRefusal();
     if (leak) throw new Error(leak);
@@ -287,7 +285,6 @@ if (cli && cliArgs.includes('--check-applied')) {
       env,
       args.find((a) => !a.startsWith('--')),
     );
-    console.log(`db:migrate: ${env} is up to date`);
     for (const column of await unindexedForeignKeys(db))
       console.warn(
         `db:migrate: warning: ${column} is a foreign key without an index; add one (index('<name>').on(<column>)) in src/db/schema.ts and generate a migration`,

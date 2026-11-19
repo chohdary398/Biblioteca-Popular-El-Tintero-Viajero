@@ -142,7 +142,6 @@ const failed = (
 ).filter((r) => !r.ok);
 if (failed.length) fail(failed);
 if (mode === '--check') {
-  console.log('check: passed');
   process.exit(0);
 }
 rmSync(join(OUT, 'README.md'), { force: true });
@@ -179,6 +178,3 @@ const manifest = {
   assets,
 };
 writeFileSync(join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
-console.log(
-  `build:preview: ${String(modules.length)} module(s), ${String(Object.keys(assets).length)} assets`,
-);

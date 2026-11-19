@@ -173,7 +173,6 @@ async function main(argv) {
     if (!(e instanceof TimedOut)) throw e;
     const fresh = logLines(LOG, logFrom).filter(Boolean);
     const tail = (fresh.length ? fresh : logLines(LOG, 0).filter(Boolean)).slice(-8).map((l) => clip(l, 200));
-    console.log(`${e.message}; dev log, last lines:\n${tail.join('\n')}`);
     return 1;
   }
 }
@@ -188,10 +187,7 @@ async function tryJson(method, path, body, headers) {
     redirect: 'manual',
   });
   const location = res.headers.get('location');
-  console.log(`${method} ${path} → ${String(res.status)}${location ? ` → ${location}` : ''}`);
-  if (text.trim()) console.log(clip(text.replace(/\s+/g, ' ').trim(), 300));
   const errors = await errorsSince(logFrom);
-  if (errors.length) console.log(`dev log:\n${errors.join('\n')}`);
   return res.status >= 500 || errors.length ? 1 : 0;
 }
 
@@ -204,16 +200,12 @@ async function tryAction(path, name, args, headers) {
   if (!Array.isArray(parse(args))) throw new Error(`--action: the arguments must be a JSON array\n${USAGE}`);
   const page = await request(`GET ${path}`, ORIGIN + path, { headers, redirect: 'manual' });
   if (page.res.status >= 300 && page.res.status < 400) {
-    console.log(
-      `GET ${path} → ${String(page.res.status)} → ${String(page.res.headers.get('location'))}: not signed in? use --as email:password`,
-    );
     return 1;
   }
   const known = Object.entries(parse(size(ACTIONS) ? readFileSync(ACTIONS, 'utf8') : '')?.node ?? {});
   const id = known.find(([, v]) => v.exportedName === name)?.[0];
   if (!id) {
     const names = [...new Set(known.map(([, v]) => v.exportedName))].join(', ');
-    console.log(`no server action "${name}" in the pages rendered so far; found: ${names || 'none'}`);
     return 1;
   }
   const logFrom = size(LOG);
@@ -226,22 +218,13 @@ async function tryAction(path, name, args, headers) {
   // the action's return value is row 1 of the answer (row 0 points at it; `1:D…` is `next dev`'s debug row)
   const returned = text.split('\n').find((l) => /^1:(?!D)/.test(l));
   const location = res.headers.get('x-action-redirect') ?? res.headers.get('location');
-  console.log(
-    `${name}(${clip(args.slice(1, -1), 120)}) → ${String(res.status)}${location ? ` → ${location}` : ''}`,
-  );
-  if (returned) console.log(`returns: ${clip(returned.slice(2), 400)}`);
   const errors = await errorsSince(logFrom);
-  if (errors.length) console.log(`dev log:\n${errors.join('\n')}`);
   return res.status >= 500 || errors.length ? 1 : 0;
 }
 
 async function tryPage(path, index, pairs, headers) {
   // this post would never finish and would take the dev server's memory with it (research 59 §9): refuse it
   const hang = checkWorkerSafe().filter((f) => f.rule === 'bound-action-state');
-  for (const f of hang)
-    console.log(
-      `${f.code} ${f.file}:${String(f.line)} ${f.found}: ${f.reason}\nUse instead: ${f.replacement}`,
-    );
   if (hang.length) return 1;
   const values = pairs.map((p) => [p.slice(0, p.indexOf('=')), p.slice(p.indexOf('=') + 1)]);
   let run = await submit(path, index, values, headers);
@@ -253,12 +236,6 @@ async function tryPage(path, index, pairs, headers) {
   }
   if (!run) return 1;
   const { res, target, pick, missing, shown, errors } = run;
-  console.log(
-    `POST ${target} (form ${String(pick)}) → ${String(res.status)}${res.headers.get('location') ? ` → ${res.headers.get('location')}` : ''}`,
-  );
-  if (missing.length) console.log(`not sent: ${missing.join(', ')}`);
-  if (shown.length) console.log(`shows: ${shown.join(' | ')}`);
-  if (errors.length) console.log(`dev log:\n${errors.join('\n')}`);
   return res.status >= 500 || errors.length ? 1 : 0;
 }
 
@@ -270,9 +247,6 @@ async function submit(path, index, values, headers) {
   });
   if (page.status >= 300 && page.status < 400) {
     // never parse the page it redirects to (a login page's forms are not this page's)
-    console.log(
-      `GET ${path} → ${String(page.status)} → ${String(page.headers.get('location'))}: not signed in? use --as email:password`,
-    );
     return undefined;
   }
   const forms = formsOf(html);
@@ -282,9 +256,6 @@ async function submit(path, index, values, headers) {
       : Number(index);
   const form = forms[pick];
   if (!form) {
-    console.log(
-      `GET ${path} → ${String(page.status)}: ${String(forms.length)} form(s), none with a server action; pass --form N, sign up or in with --as email:password, call an action its client code calls with --action <name> '[args]', or try its API route with --json`,
-    );
     return undefined;
   }
   const given = new Set(values.map(([k]) => k));
