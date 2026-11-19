@@ -30,9 +30,4 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
       stdio: 'inherit',
     });
   if (config) copyFileSync('mobile/capacitor.config.ts', 'capacitor.config.ts');
-  console.log(
-    install.length || config
-      ? `mobile:enable: Capacitor ${CAPACITOR_VERSION} added. The user builds the app from the Mobile tab (Codemagic).`
-      : 'mobile:enable: already enabled.',
-  );
 }
