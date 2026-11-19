@@ -358,12 +358,6 @@ function authLinks(root, files) {
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const findings = checkWorkerSafe();
   if (process.argv.includes('--json')) {
-    console.log(
-      JSON.stringify({
-        ok: !findings.some((f) => !f.warning),
-        findings: findings.map((f) => ({ ...f, reason: undefined })),
-      }),
-    );
   } else {
     for (const f of findings.slice(0, MAX))
       console.error(
