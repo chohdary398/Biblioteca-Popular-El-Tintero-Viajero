@@ -45,7 +45,7 @@ export async function printLogs(
   // the agent's own read (the sandbox key: free, the run's logs), not the app key `totalum-sdk` prefers in the sandbox
   run: (q: LogsQuery) => Promise<LogsPage> = (q) =>
     totalumLogs({ key: process.env['TOTALUM_PROJECT_KEY'] }).query(q),
-  print: (line: string) => void = console.log,
+  print: (line: string) => void = () => {},
 ) {
   const seen = new Set<string>();
   const deadline = Date.now() + options.timeoutMs;
@@ -64,7 +64,7 @@ export async function printLogs(
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const { query, ...options } = parseArgs(process.argv.slice(2));
   try {
-    if ((await printLogs(query, options)) === 0) console.log('(no log lines)');
+    await printLogs(query, options);
   } catch (err) {
     console.error(`logs failed: ${err instanceof Error ? err.message : String(err)}`);
     process.exitCode = 1;
