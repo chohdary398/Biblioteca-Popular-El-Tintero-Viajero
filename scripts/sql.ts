@@ -106,12 +106,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
     const refusal = writeRefusal(sql, userAsked);
     if (refusal) throw new Error(refusal);
     const { rows, total } = await runSql(proxy?.env.TOTALUM_DB ?? totalumD1({ env }), sql, params, limit);
-    for (const row of rows) console.log(schema ? `${String(row.sql)};` : JSON.stringify(row));
-    console.log(
-      `(${String(total)} row${total === 1 ? '' : 's'}${total > rows.length ? `, ${String(rows.length)} shown` : ''})`,
-    );
     const note = !local && (env ?? process.env.TOTALUM_ENV) !== 'live' ? deleteNote(sql, userAsked) : null;
-    if (note) console.log(note);
   } catch (err) {
     const cause = err instanceof Error && err.cause instanceof Error ? ` (${err.cause.message})` : '';
     console.error(`db:sql failed: ${err instanceof Error ? err.message : String(err)}${cause}`);
