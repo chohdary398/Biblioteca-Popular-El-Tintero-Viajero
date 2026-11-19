@@ -21,6 +21,5 @@ for (const file of readdirSync(folder).filter((f) => f.endsWith('.sql'))) {
   );
   if (fixed !== sql) {
     writeFileSync(path, fixed);
-    console.log(`db:generate: ${file}: expression index unquoted (drizzle-kit table rebuild)`);
   }
 }
